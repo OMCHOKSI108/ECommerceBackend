@@ -104,7 +104,7 @@ Primary frontend variable.
 
 Recommended local value.
 
-- VITE_API_BASE_URL=http://localhost:4000/api
+- VITE_API_BASE_URL=http://localhost:5000/api
 
 ## 6. Local Setup Guide
 
@@ -163,7 +163,7 @@ Recommended pre-release checks.
 
 ## 8. API Reference
 
-Base URL in local setup is http://localhost:4000/api.
+Base URL in local setup is http://localhost:5000/api.
 
 ### GET /health
 
