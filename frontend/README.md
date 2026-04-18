@@ -1,4 +1,4 @@
-# MarketStock Frontend
+# Cybercell Frontend
 
 Professional React + TypeScript frontend integrated with existing Node.js backend APIs.
 

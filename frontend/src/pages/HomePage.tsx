@@ -4,7 +4,7 @@ export function HomePage() {
   return (
     <div className="landing-page">
       <header className="landing-header">
-        <div className="brand">MarketStock</div>
+        <div className="brand">Cybercell</div>
         <nav className="landing-nav">
           <Link className="btn btn-outline" to="/login">
             Sign in

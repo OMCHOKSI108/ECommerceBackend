@@ -19,7 +19,7 @@ export function AppShell() {
   return (
     <div className="app-shell">
       <aside className="sidebar">
-        <div className="brand">MarketStock</div>
+        <div className="brand">Cybercell</div>
         <nav className="nav-list">
           {navItems.map((item) => (
             <NavLink

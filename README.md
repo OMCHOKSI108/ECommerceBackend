@@ -1,4 +1,4 @@
-# MarketStock Monorepo
+# Cybercell Monorepo
 
 Production-ready full-stack workspace with a Node.js backend and a React frontend.
 This repository is organized for local development first, then staging and production rollout.
@@ -6,7 +6,7 @@ The stack is intentionally simple and maintainable: Express, PostgreSQL, Vite, R
 
 ## 1. Project Overview
 
-MarketStock currently provides account authentication and profile management.
+Cybercell currently provides account authentication and profile management.
 The backend exposes stable REST APIs for signup, login, health, and profile fetch.
 The frontend integrates only those existing APIs and avoids mock or fake service layers.
 Unsupported modules are intentionally hidden or disabled until backend routes exist.
