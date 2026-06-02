@@ -4,14 +4,17 @@ Welcome to our E-commerce platform! This repository contains the source code for
 
 ## Table of Contents
 
-- [Getting Started](#getting-started)
-  - [Prerequisites](#prerequisites)
-  - [Installation](#installation)
-- [Features](#features)
-- [API Routes](#api-routes)
-- [Bull Board](#bull-board)
-- [Contributing](#contributing)
-- [License](#license)
+- [E-commerce Platform](#e-commerce-platform)
+  - [Table of Contents](#table-of-contents)
+  - [Getting Started](#getting-started)
+    - [Prerequisites](#prerequisites)
+    - [Installation](#installation)
+  - [Features](#features)
+  - [API Routes](#api-routes)
+  - [Bull Board](#bull-board)
+  - [Contributing](#contributing)
+  - [Note](#note)
+  - [License](#license)
 
 ## Getting Started
 
@@ -28,7 +31,7 @@ Before you can run the application, make sure you have the following installed o
 1. Clone the repository to your local machine:
 
    ```
-   git clone https://github.com/your-username/e-commerce-platform.git
+   git clone https://github.com/OMCHOKSI108/ECommerceBackend.git
    ```
 
 2. Install the required dependencies:
