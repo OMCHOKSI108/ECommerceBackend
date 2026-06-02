@@ -118,7 +118,7 @@ The following are the available API routes for the e-commerce platform:
 
 ## Bull Board
 
-We have also integrated Bull Board for managing background jobs and real-time notifications. To access Bull Board, navigate to `/admin/queues` on your local development server.
+I have also integrated Bull Board for managing background jobs and real-time notifications. To access Bull Board, navigate to `/admin/queues` on your local development server.
 
 ## Contributing
 
