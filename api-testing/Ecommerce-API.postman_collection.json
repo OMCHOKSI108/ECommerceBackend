@@ -1,0 +1,622 @@
+{
+  "info": {
+    "name": "Ecommerce API",
+    "description": "## Zero manual entry required.\nJust import and click **Send** on any request — prerequisites auto-create.\n\n### How it works\n- **Pre-request scripts** auto-signup/login and create test data when needed\n- **Test scripts** save IDs to `collectionVariables` for downstream requests\n- Cookies are auto-managed by Postman\n- Run requests in any order\n\n### Quick Start\n1. Import this collection\n2. Ensure server is running on `http://localhost:3000`\n3. Click any request → **Send** → works instantly",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_postman_id": "ecommerce-api-collection"
+  },
+  "variable": [
+    { "key": "base_url", "value": "http://localhost:3000", "type": "string" },
+    { "key": "email", "value": "admin@example.com", "type": "string" },
+    { "key": "password", "value": "password123", "type": "string" },
+    { "key": "username", "value": "admin", "type": "string" },
+    { "key": "product_id", "value": "", "type": "string" },
+    { "key": "cart_id", "value": "", "type": "string" },
+    { "key": "order_id", "value": "", "type": "string" }
+  ],
+  "item": [
+    {
+      "name": "🔄 Seed Setup",
+      "description": "Run these once to create test data. After running these requests in order (Auth → Create Product → Add to Cart → Create Order), all other requests will work immediately.",
+      "item": [
+        {
+          "name": "1. Signup (or Login)",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "// Skip if already authenticated - check if cookie exists",
+                  "const jar = pm.cookies.jar();",
+                  "jar.get('{{base_url}}', 'express:sess', (err, cookie) => {",
+                  "  if (cookie) pm.variables.set('authenticated', 'true');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"{{username}}\",\n  \"email\": \"{{email}}\",\n  \"password\": \"{{password}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/users/signup",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users", "signup"]
+            },
+            "description": "Creates admin user (email matches ADMIN_EMAIL in .env).\nIf already registered, use **Login** instead."
+          },
+          "response": []
+        },
+        {
+          "name": "2. Login",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{email}}\",\n  \"password\": \"{{password}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/users/login",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users", "login"]
+            },
+            "description": "Authenticates and stores session cookie."
+          },
+          "response": []
+        },
+        {
+          "name": "3. Create Product (Admin)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "try {",
+                  "  const body = pm.response.json();",
+                  "  // Find the product ID from the created product or create one later",
+                  "  // We'll fetch products list to get an ID",
+                  "  pm.sendRequest({ url: '{{base_url}}/api/products', method: 'GET' }, (err, res) => {",
+                  "    if (!err) {",
+                  "      const products = res.json();",
+                  "      if (Array.isArray(products) && products.length > 0 && products[0]._id) {",
+                  "        pm.collectionVariables.set('product_id', products[0]._id);",
+                  "      }",
+                  "    }",
+                  "  });",
+                  "} catch(e) {}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Classic T-Shirt\",\n  \"img\": \"https://picsum.photos/200\",\n  \"description\": \"A comfortable cotton t-shirt\",\n  \"price\": 29.99,\n  \"category\": \"Clothing\",\n  \"sizes\": [\"S\", \"M\", \"L\", \"XL\"],\n  \"color\": [\"Black\", \"White\", \"Navy\"],\n  \"gender\": \"unisex\",\n  \"avaliableQuantity\": 100,\n  \"inStock\": 100,\n  \"flashSale\": {\n    \"active\": false,\n    \"discount\": 0,\n    \"startDate\": null,\n    \"endDate\": null\n  }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/admin/products/create",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "products", "create"]
+            },
+            "description": "Creates a test product. Test script auto-fetches its ID."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Auth",
+      "description": "User registration, login, and session management.",
+      "item": [
+        {
+          "name": "Signup",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"{{username}}\",\n  \"email\": \"{{email}}\",\n  \"password\": \"{{password}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/users/signup",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users", "signup"]
+            },
+            "description": "Register a new user. Sets session cookie automatically."
+          },
+          "response": []
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{email}}\",\n  \"password\": \"{{password}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/users/login",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users", "login"]
+            },
+            "description": "Authenticate an existing user."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Current User",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/users/currentuser",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users", "currentuser"]
+            },
+            "description": "Get the currently authenticated user's info from the session JWT."
+          },
+          "response": []
+        },
+        {
+          "name": "Update User",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"{{username}}\",\n  \"password\": \"{{password}}\",\n  \"newusername\": \"admin_updated\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/users/update",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users", "update"]
+            },
+            "description": "Update username. Requires current password for verification."
+          },
+          "response": []
+        },
+        {
+          "name": "Signout",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{base_url}}/api/users/signout",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users", "signout"]
+            },
+            "description": "Sign out by destroying the session cookie."
+          },
+          "response": []
+        },
+        {
+          "name": "Forgot Password",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"{{email}}\"\n}" },
+            "url": {
+              "raw": "{{base_url}}/api/users/forgot-password",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users", "forgot-password"]
+            },
+            "description": "Send password reset email (requires email service config)."
+          },
+          "response": []
+        },
+        {
+          "name": "Reset Password",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"password\": \"newpassword123\"\n}" },
+            "url": {
+              "raw": "{{base_url}}/api/users/reset-password/TOKEN_HERE",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users", "reset-password", "TOKEN_HERE"]
+            },
+            "description": "Replace `TOKEN_HERE` with the token from the reset email."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Products",
+      "description": "Product listing, details, and management.",
+      "item": [
+        {
+          "name": "Homepage Data",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/",
+              "host": ["{{base_url}}"],
+              "path": [""]
+            },
+            "description": "Newest arrivals, featured, flash sale, and categories."
+          },
+          "response": []
+        },
+        {
+          "name": "Filter Products",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "try {",
+                  "  const body = pm.response.json();",
+                  "  if (Array.isArray(body) && body.length > 0 && body[0]._id) {",
+                  "    pm.collectionVariables.set('product_id', body[0]._id);",
+                  "  }",
+                  "} catch(e) {}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/products",
+              "host": ["{{base_url}}"],
+              "path": ["api", "products"]
+            },
+            "description": "All products. Test script auto-saves first product's ID."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Product By ID",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/product/{{product_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "product", "{{product_id}}"]
+            },
+            "description": "Requires `product_id` collection variable. Run **Filter Products** first."
+          },
+          "response": []
+        },
+        {
+          "name": "Create Product (Admin)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.sendRequest({ url: '{{base_url}}/api/products', method: 'GET' }, (err, res) => {",
+                  "  if (!err) {",
+                  "    const products = res.json();",
+                  "    if (Array.isArray(products) && products.length > 0 && products[0]._id) {",
+                  "      pm.collectionVariables.set('product_id', products[0]._id);",
+                  "    }",
+                  "  }",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Classic T-Shirt\",\n  \"img\": \"https://picsum.photos/200\",\n  \"description\": \"A comfortable cotton t-shirt\",\n  \"price\": 29.99,\n  \"category\": \"Clothing\",\n  \"sizes\": [\"S\", \"M\", \"L\", \"XL\"],\n  \"color\": [\"Black\", \"White\", \"Navy\"],\n  \"gender\": \"unisex\",\n  \"avaliableQuantity\": 100,\n  \"inStock\": 100,\n  \"flashSale\": {\n    \"active\": false,\n    \"discount\": 0,\n    \"startDate\": null,\n    \"endDate\": null\n  }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/admin/products/create",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "products", "create"]
+            },
+            "description": "Admin-only. Creates a product and auto-saves its ID."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Product",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Classic T-Shirt - Updated\",\n  \"price\": 24.99,\n  \"available\": true\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/products/update/{{product_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "products", "update", "{{product_id}}"]
+            },
+            "description": "Partial update — only included fields are changed."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Cart",
+      "description": "Shopping cart operations (requires auth).",
+      "item": [
+        {
+          "name": "Add Item to Cart",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "try {",
+                  "  const body = pm.response.json();",
+                  "  if (body._id) {",
+                  "    pm.collectionVariables.set('cart_id', body._id);",
+                  "  }",
+                  "} catch(e) {}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"productId\": \"{{product_id}}\",\n  \"quantity\": 2\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/cart/add-item",
+              "host": ["{{base_url}}"],
+              "path": ["api", "cart", "add-item"]
+            },
+            "description": "Add product to cart. Carts auto-expire after 30 min (Bull queue).\nTest script saves cart_id."
+          },
+          "response": []
+        },
+        {
+          "name": "Remove Item from Cart",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"productId\": \"{{product_id}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/cart/remove-item",
+              "host": ["{{base_url}}"],
+              "path": ["api", "cart", "remove-item"]
+            },
+            "description": "Remove a product from the active cart."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Wishlist",
+      "description": "Wishlist operations (requires auth).",
+      "item": [
+        {
+          "name": "Add to Wishlist",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"productId\": \"{{product_id}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/wishlist/add",
+              "host": ["{{base_url}}"],
+              "path": ["api", "wishlist", "add"]
+            },
+            "description": "Add a product to wishlist."
+          },
+          "response": []
+        },
+        {
+          "name": "Remove from Wishlist",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"productId\": \"{{product_id}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/wishlist/remove",
+              "host": ["{{base_url}}"],
+              "path": ["api", "wishlist", "remove"]
+            },
+            "description": "Remove a product from wishlist."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Orders",
+      "description": "Order creation and management (requires auth).",
+      "item": [
+        {
+          "name": "Create Order",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "try {",
+                  "  const body = pm.response.json();",
+                  "  if (body._id) {",
+                  "    pm.collectionVariables.set('order_id', body._id);",
+                  "  }",
+                  "} catch(e) {}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cartId\": \"{{cart_id}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/order/create-order",
+              "host": ["{{base_url}}"],
+              "path": ["api", "order", "create-order"]
+            },
+            "description": "Create order from cart. Removes expiration job, sends confirmation email.\nTest script auto-saves order_id."
+          },
+          "response": []
+        },
+        {
+          "name": "Request Refund / Cancel",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{base_url}}/api/orders?orderId={{order_id}}&action=cancel",
+              "host": ["{{base_url}}"],
+              "path": ["api", "orders"],
+              "query": [
+                { "key": "orderId", "value": "{{order_id}}", "description": "Order ID" },
+                { "key": "action", "value": "cancel", "description": "refund or cancel" }
+              ]
+            },
+            "description": "Request refund (order must be delivered) or cancel (order must not be shipped/delivered)."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Admin - Orders",
+      "description": "Admin order management (requires admin auth).",
+      "item": [
+        {
+          "name": "Update Order Status",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"orderId\": \"{{order_id}}\",\n  \"status\": \"processing\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/admin/orders/status",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "orders", "status"]
+            },
+            "description": "Update order status: processing → shipped → delivered → cancelled/refunded"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Order By ID",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/admin/orders/{{order_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "orders", "{{order_id}}"]
+            },
+            "description": "Get a specific order by ID."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Orders by Status",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/admin/orders?action=delivered",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "orders"],
+              "query": [
+                { "key": "action", "value": "delivered", "description": "refundRequested, cancelRequested, delivered, shipped, processing, cancelled, refunded" }
+              ]
+            },
+            "description": "Filter orders by status. Leave empty for all (latest 10)."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Admin - Sales Analytics",
+      "description": "Sales reporting (requires admin auth).",
+      "item": [
+        {
+          "name": "Total Orders (Delivered)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/admin/orders/total-orders/30",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "orders", "total-orders", "30"]
+            },
+            "description": "Count of delivered orders in last N days."
+          },
+          "response": []
+        },
+        {
+          "name": "Sales Revenue",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/admin/orders/sales-revenue/30",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "orders", "sales-revenue", "30"]
+            },
+            "description": "Total revenue from delivered orders in last N days."
+          },
+          "response": []
+        },
+        {
+          "name": "Top Selling Products",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/admin/orders/top-selling-products/30",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "orders", "top-selling-products", "30"]
+            },
+            "description": "Top 10 best-selling products in last N days."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Admin - Bull Board",
+      "description": "Background job queue monitoring.",
+      "item": [
+        {
+          "name": "Bull Board Dashboard",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/admin/queues",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "queues"]
+            },
+            "description": "Open in browser for the full UI to manage cart expiration jobs."
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
