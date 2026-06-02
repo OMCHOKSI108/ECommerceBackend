@@ -13,7 +13,7 @@ Welcome to our E-commerce platform! This repository contains the source code for
   - [API Routes](#api-routes)
   - [Bull Board](#bull-board)
   - [Contributing](#contributing)
-  - [Note](#note)
+  - [Note (For Developers)](#note-for-developers)
   - [License](#license)
 
 ## Getting Started
@@ -124,7 +124,7 @@ We have also integrated Bull Board for managing background jobs and real-time no
 
 We welcome contributions to our e-commerce platform! If you have any suggestions, bug reports, or feature requests, please open an issue or submit a pull request.
 
-## Note
+## Note (For Developers)
 
 Please be aware that this is a backend-only project, and no payment gateway has been implemented. The focus is on providing a solid foundation for an e-commerce platform, allowing users to manage products, carts, orders, and more. You will need to integrate a payment gateway separately and also their are no transactions support(ACID Transactions) if you plan to use this project for a complete e-commerce application.
 
