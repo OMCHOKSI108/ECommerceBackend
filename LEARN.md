@@ -34,9 +34,9 @@ Before you can run the application, make sure you have the following installed o
 
 1. Clone the repository to your local machine:
 
-git clone https://github.com/your-username/e-commerce-platform.git
+git clone https://github.com/OMCHOKSI108/ECommerceBackend.git
 
-2. Install the required dependencies:
+1. Install the required dependencies:
 
 cd e-commerce-platform
 npm install
