@@ -2,16 +2,26 @@
 
 This repository contains the source code for a feature-rich e-commerce application built using Node.js, Express.js, MongoDB, and Redis. This LEARN.md provides an overview of the project, installation instructions, and information about the available API routes.
 
+## THIS IS MERGE BRANCH 
+
+# THIS IS MERGE BRANCH
+
+
 ## Table of Contents
 
-- [Getting Started](#getting-started)
-  - [Prerequisites](#prerequisites)
-  - [Installation](#installation)
-- [Features](#features)
-- [API Routes](#api-routes)
-- [Bull Board](#bull-board)
-- [Contributing](#contributing)
-- [License](#license)
+- [Getting Started with Ecommerce Typescript Backend](#getting-started-with-ecommerce-typescript-backend)
+  - [THIS IS MERGE BRANCH](#this-is-merge-branch)
+- [THIS IS MERGE BRANCH](#this-is-merge-branch-1)
+  - [Table of Contents](#table-of-contents)
+  - [Getting Started](#getting-started)
+    - [Prerequisites](#prerequisites)
+    - [Installation](#installation)
+  - [Features](#features)
+  - [API Routes](#api-routes)
+  - [Bull Board](#bull-board)
+  - [Contributing](#contributing)
+  - [Note](#note)
+  - [License](#license)
 
 ## Getting Started
 
