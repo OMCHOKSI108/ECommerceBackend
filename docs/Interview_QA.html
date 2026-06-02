@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>E-commerce Backend — Interview Q&A</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <style>
+    body { font-family: Arial, Helvetica, sans-serif; margin: 40px; color: #111 }
+    h1 { text-align: center }
+    h2 { color: #222; margin-top: 1.2em }
+    ol { margin-left: 1em }
+    li { margin: 0.6em 0 }
+    .question { font-weight: 700 }
+    .answer { margin-left: 0.6em }
+    footer { margin-top: 2em; font-size: 0.9em; color: #555 }
+  </style>
+</head>
+<body>
+  <h1>E-commerce Backend — Interview Q&A</h1>
+  <p>Generated: June 1, 2026</p>
+  <ol>
+    <li>
+      <div class="question">Q1: Project purpose</div>
+      <div class="answer">A1: Provide a TypeScript/Node backend for an e‑commerce app: product catalog, user auth, cart/wishlist, order lifecycle, admin reports, and email notifications.</div>
+    </li>
+    <li>
+      <div class="question">Q2: Entry points</div>
+      <div class="answer">A2: <em>src/index.ts</em> boots the server and connects DB; <em>src/app.ts</em> builds the Express app, registers middleware and routes, and attaches the error handler.</div>
+    </li>
+    <li>
+      <div class="question">Q3: Authentication flow</div>
+      <div class="answer">A3: Middleware <em>current-user-middleware.ts</em> parses the token/session and attaches <code>req.currentUser</code>. <em>require-auth-middleware.ts</em> enforces protected routes. Password hashing via <em>password.service.ts</em>.</div>
+    </li>
+    <li>
+      <div class="question">Q4: Database layer</div>
+      <div class="answer">A4: Mongoose + MongoDB with models in <em>src/models/</em> (User, Product, Cart, Order). <em>mongoose.service.ts</em> centralizes connection logic.</div>
+    </li>
+    <li>
+      <div class="question">Q5: Error handling</div>
+      <div class="answer">A5: Custom error classes in <em>src/common/src/errors/</em> (e.g., <em>CustomError</em>, <em>RequestValidationError</em>) and a single <em>error-handler-middleware.ts</em> formats responses.</div>
+    </li>
+    <li>
+      <div class="question">Q6: Adding a new route</div>
+      <div class="answer">A6: Create a router under <em>src/routes/</em> or <em>src/admin/</em>, add validators, implement handler using models/services, register router in <em>src/app.ts</em>, apply auth/validation middleware.</div>
+    </li>
+    <li>
+      <div class="question">Q7: Password security</div>
+      <div class="answer">A7: <em>password.service.ts</em> wraps a hashing algorithm (bcrypt or similar) for hashing on sign-up and comparing on login.</div>
+    </li>
+    <li>
+      <div class="question">Q8: Background jobs</div>
+      <div class="answer">A8: <em>expiration-queue.service.ts</em> implements expiration logic (timeouts/intervals or a queue); <em>email.service.ts</em> handles notification delivery.</div>
+    </li>
+    <li>
+      <div class="question">Q9: Admin vs public routes</div>
+      <div class="answer">A9: Admin routes are under <em>src/admin/</em>; protected by auth middleware and likely role checks in handlers.</div>
+    </li>
+    <li>
+      <div class="question">Q10: Input validation</div>
+      <div class="answer">A10: <em>validate-request-middleware.ts</em> uses validators (express-validator or similar) and throws <em>RequestValidationError</em> on failures.</div>
+    </li>
+    <li>
+      <div class="question">Q11: Scaling limitations</div>
+      <div class="answer">A11: Single-node memory-bound expiration/email implementations; no distributed job queue; unclear rate-limiting; no caching layer shown.</div>
+    </li>
+    <li>
+      <div class="question">Q12: Security concerns to review</div>
+      <div class="answer">A12: Audit secrets/env management, HTTPS, CORS, token expiry, brute-force protections, and safe error messages.</div>
+    </li>
+    <li>
+      <div class="question">Q13: Testing strategy</div>
+      <div class="answer">A13: Unit tests for services/models (Jest), integration tests for routes (supertest), E2E flows via Postman/Cypress with a test DB instance.</div>
+    </li>
+    <li>
+      <div class="question">Q14: Deployment</div>
+      <div class="answer">A14: Docker via <em>server.dockerfile</em> and <em>docker-compose.yml</em>. CI builds images, pushes to registry, and deploys to orchestrator.</div>
+    </li>
+    <li>
+      <div class="question">Q15: Performance improvements</div>
+      <div class="answer">A15: Add Redis caching, DB indexes, connection pooling, worker queue for email/expiration, and pagination.</div>
+    </li>
+    <li>
+      <div class="question">Q16: Data modeling</div>
+      <div class="answer">A16: Relations via references/embedded docs; orders store product snapshots to preserve history.</div>
+    </li>
+    <li>
+      <div class="question">Q17: Migration strategy</div>
+      <div class="answer">A17: Add fields with defaults, write migration scripts to backfill, deploy backwards-compatible code, then remove old fields later.</div>
+    </li>
+    <li>
+      <div class="question">Q18: Observability</div>
+      <div class="answer">A18: Add structured logging, tracing (OpenTelemetry), metrics (Prometheus), and log aggregation (ELK/Datadog).</div>
+    </li>
+    <li>
+      <div class="question">Q19: Explain a router</div>
+      <div class="answer">A19: <em>src/routes/order/create-order.router.ts</em> validates checkout, converts cart to order, computes totals, persists <em>Order</em>, adjusts stock, and triggers email/cleanup.</div>
+    </li>
+    <li>
+      <div class="question">Q20: Design tradeoffs</div>
+      <div class="answer">A20: Admin in same repo simplifies deployment and reuse but increases coupling and attack surface; consider microservice split for scale.</div>
+    </li>
+  </ol>
+  <footer>
+    Notes: Use the project's Postman collection to test routes. Generated by Copilot assistant.
+  </footer>
+</body>
+</html>

@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Dashboard</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f0f2f5; color: #333; }
+  .container { max-width: 1300px; margin: 0 auto; padding: 20px; }
+  h1 { font-size: 22px; margin-bottom: 4px; }
+  .subtitle { font-size: 13px; color: #888; margin-bottom: 20px; }
+
+  /* Nav */
+  .nav { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 20px; padding: 10px 16px; background: #fff; border-radius: 10px; border: 1px solid #e0e0e0; }
+  .nav a { color: #4a90d9; text-decoration: none; font-size: 13px; padding: 4px 10px; border-radius: 4px; cursor: pointer; }
+  .nav a:hover { background: #e8f0fe; }
+
+  /* Cards */
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 14px; }
+  .grid-2 { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; }
+  .grid-4 { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px; }
+  .card { background: #fff; border: 1px solid #e0e0e0; border-radius: 10px; padding: 16px; }
+  .card h3 { font-size: 14px; font-weight: 600; margin-bottom: 10px; color: #444; display: flex; align-items: center; gap: 6px; }
+  .card h3 .badge { font-size: 11px; background: #e8f0fe; color: #4a90d9; padding: 1px 8px; border-radius: 10px; font-weight: 400; }
+
+  /* Stat cards */
+  .stat-card { background: #fff; border: 1px solid #e0e0e0; border-radius: 10px; padding: 16px; text-align: center; }
+  .stat-card .num { font-size: 28px; font-weight: 700; color: #4a90d9; }
+  .stat-card .label { font-size: 12px; color: #888; margin-top: 2px; }
+
+  /* Tables */
+  table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  th { text-align: left; padding: 6px 8px; border-bottom: 2px solid #eee; color: #888; font-weight: 600; font-size: 11px; text-transform: uppercase; }
+  td { padding: 6px 8px; border-bottom: 1px solid #f0f0f0; }
+  tr:hover td { background: #fafafa; }
+  .table-wrap { max-height: 300px; overflow: auto; }
+
+  /* Forms */
+  label { display: block; font-size: 11px; color: #888; margin-bottom: 2px; }
+  input, select { width: 100%; padding: 6px 8px; border: 1px solid #ddd; border-radius: 6px; font-size: 13px; margin-bottom: 6px; }
+  input:focus { outline: none; border-color: #4a90d9; box-shadow: 0 0 0 2px rgba(74,144,217,0.15); }
+  .row { display: flex; gap: 6px; }
+  .row input { flex: 1; }
+
+  /* Buttons */
+  button { padding: 6px 14px; border: none; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 500; white-space: nowrap; }
+  .btn-primary { background: #4a90d9; color: #fff; }
+  .btn-primary:hover { background: #357abd; }
+  .btn-danger { background: #e74c3c; color: #fff; }
+  .btn-danger:hover { background: #c0392b; }
+  .btn-success { background: #27ae60; color: #fff; }
+  .btn-success:hover { background: #219a52; }
+  .btn-warning { background: #f39c12; color: #fff; }
+  .btn-warning:hover { background: #d68910; }
+  .btn-sm { padding: 4px 10px; font-size: 11px; }
+  .btn-outline { background: transparent; color: #4a90d9; border: 1px solid #4a90d9; }
+  .btn-outline:hover { background: #e8f0fe; }
+
+  /* Status badges */
+  .badge-status { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 500; }
+  .badge-green { background: #d4edda; color: #155724; }
+  .badge-red { background: #f8d7da; color: #721c24; }
+  .badge-yellow { background: #fff3cd; color: #856404; }
+  .badge-blue { background: #d1ecf1; color: #0c5460; }
+  .badge-gray { background: #e2e3e5; color: #383d41; }
+
+  pre { background: #f8f9fa; border: 1px solid #eee; border-radius: 6px; padding: 10px; font-size: 11px; max-height: 180px; overflow: auto; margin-top: 8px; }
+  code { background: #f0f0f0; padding: 1px 5px; border-radius: 3px; font-size: 11px; }
+  .toast { position: fixed; bottom: 20px; right: 20px; padding: 10px 20px; border-radius: 8px; color: #fff; font-size: 13px; z-index: 999; display: none; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+  .toast.show { display: block; }
+  .toast.success { background: #27ae60; }
+  .toast.error { background: #e74c3c; }
+  .mt-12 { margin-top: 12px; }
+  .mb-12 { margin-bottom: 12px; }
+  .hidden { display: none; }
+  .flex-between { display: flex; justify-content: space-between; align-items: center; }
+  .copy-btn { cursor: pointer; font-size: 11px; color: #4a90d9; background: none; border: none; padding: 2px 4px; }
+  .copy-btn:hover { text-decoration: underline; }
+  section { scroll-margin-top: 10px; }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="flex-between">
+    <div>
+      <h1>🛒 Admin Dashboard</h1>
+      <div class="subtitle" id="status-text">Not logged in</div>
+    </div>
+    <div>
+      <button class="btn-outline btn-sm" onclick="refreshAll()">🔄 Refresh All</button>
+    </div>
+  </div>
+
+  <div class="nav">
+    <a onclick="document.getElementById('s-overview').scrollIntoView({behavior:'smooth'})">Overview</a>
+    <a onclick="document.getElementById('s-users').scrollIntoView({behavior:'smooth'})">Users</a>
+    <a onclick="document.getElementById('s-products').scrollIntoView({behavior:'smooth'})">Products</a>
+    <a onclick="document.getElementById('s-cart').scrollIntoView({behavior:'smooth'})">Cart</a>
+    <a onclick="document.getElementById('s-orders').scrollIntoView({behavior:'smooth'})">Orders</a>
+    <a onclick="document.getElementById('s-wishlist').scrollIntoView({behavior:'smooth'})">Wishlist</a>
+    <a onclick="document.getElementById('s-admin').scrollIntoView({behavior:'smooth'})">Admin</a>
+    <a onclick="document.getElementById('s-sales').scrollIntoView({behavior:'smooth'})">Sales</a>
+    <a onclick="document.getElementById('s-bull').scrollIntoView({behavior:'smooth'})">Bull Board</a>
+  </div>
+
+  <!-- ===== OVERVIEW ===== -->
+  <section id="s-overview" class="mb-12"><h2>📊 Overview</h2></section>
+  <div class="grid-4 mb-12" id="stats-row">
+    <div class="stat-card"><div class="num" id="stat-products">—</div><div class="label">Products</div></div>
+    <div class="stat-card"><div class="num" id="stat-orders">—</div><div class="label">Orders (30d)</div></div>
+    <div class="stat-card"><div class="num" id="stat-revenue">—</div><div class="label">Revenue (30d)</div></div>
+    <div class="stat-card"><div class="num" id="stat-user">—</div><div class="label">Logged in</div></div>
+  </div>
+
+  <!-- ===== USERS ===== -->
+  <section id="s-users" class="mb-12"><h2>👤 Users</h2></section>
+  <div class="grid">
+    <div class="card">
+      <h3>Current User</h3>
+      <div id="cu-display"><button class="btn-primary btn-sm" onclick="currentUser()">Fetch Current User</button></div>
+      <pre id="cu-res" class="mt-8"></pre>
+    </div>
+    <div class="card">
+      <h3>Signup</h3>
+      <label>Email</label><input id="su-email" value="admin@example.com">
+      <label>Username</label><input id="su-name" value="admin">
+      <label>Password</label><input id="su-pass" value="password123">
+      <button class="btn-primary" onclick="signup()">Signup</button>
+      <pre id="su-res" class="mt-8"></pre>
+    </div>
+    <div class="card">
+      <h3>Login</h3>
+      <label>Email</label><input id="li-email" value="admin@example.com">
+      <label>Password</label><input id="li-pass" value="password123">
+      <button class="btn-success" onclick="login()">Login</button>
+      <pre id="li-res" class="mt-8"></pre>
+    </div>
+    <div class="card">
+      <h3>Session</h3>
+      <button class="btn-primary btn-sm" onclick="currentUser()">Refresh Session</button>
+      <button class="btn-danger btn-sm" onclick="signout()" style="margin-left:6px">Signout</button>
+      <div id="session-info" class="mt-8" style="font-size:13px;color:#666;">Click "Refresh Session"</div>
+    </div>
+  </div>
+
+  <div class="card mb-12" style="grid-column: 1/-1;">
+    <div class="flex-between">
+      <h3>All Users <span class="badge" id="user-count">0</span></h3>
+      <button class="btn-primary btn-sm" onclick="loadUsers()">🔄 Refresh</button>
+    </div>
+    <div class="table-wrap">
+      <table><thead><tr><th>ID</th><th>Email</th><th>Username</th><th>Admin</th><th>Cart Items</th><th>Orders</th><th>Joined</th></tr></thead><tbody id="user-tbody"></tbody></table>
+    </div>
+    <div id="user-empty" style="font-size:13px;color:#888;padding:12px;text-align:center;">No users found.</div>
+  </div>
+
+  <!-- ===== PRODUCTS ===== -->
+  <section id="s-products" class="mb-12 mt-12"><h2>📦 Products</h2></section>
+  <div class="card mb-12">
+    <div class="flex-between">
+      <h3>Existing Products <span class="badge" id="prod-count">0</span></h3>
+      <button class="btn-primary btn-sm" onclick="loadProducts()">🔄 Refresh</button>
+    </div>
+    <div class="table-wrap">
+      <table><thead><tr><th>ID</th><th>Title</th><th>Price</th><th>Stock</th><th>Category</th><th></th></tr></thead><tbody id="prod-tbody"></tbody></table>
+    </div>
+    <div id="prod-empty" style="font-size:13px;color:#888;padding:12px;text-align:center;">No products. Create one below.</div>
+  </div>
+  <div class="grid">
+    <div class="card">
+      <h3>Homepage Data</h3>
+      <button class="btn-primary btn-sm" onclick="homepage()">Fetch</button>
+      <pre id="hp-res" class="mt-8"></pre>
+    </div>
+    <div class="card">
+      <h3>Filter Products</h3>
+      <div class="row"><input id="fp-cat" placeholder="category"><input id="fp-size" placeholder="size"><input id="fp-gen" placeholder="gender"></div>
+      <div class="row"><input id="fp-price" placeholder="price"><input id="fp-op" placeholder="lt/gt/lte/gte"></div>
+      <button class="btn-primary btn-sm" onclick="filterProducts()">Search</button>
+      <pre id="fp-res" class="mt-8"></pre>
+    </div>
+    <div class="card">
+      <h3>Get Product</h3>
+      <div class="row"><input id="gp-id" placeholder="Product ID"><button class="btn-primary btn-sm" onclick="getProduct()">Get</button></div>
+      <pre id="gp-res" class="mt-8"></pre>
+    </div>
+    <div class="card" style="grid-column: span 2;">
+      <h3>Create / Update Product</h3>
+      <div class="row">
+        <input id="cp-title" placeholder="Title" value="New T-Shirt">
+        <input id="cp-price" placeholder="Price" value="29.99">
+        <input id="cp-cat" placeholder="Category" value="Clothing">
+      </div>
+      <div class="row">
+        <input id="cp-img" placeholder="Image URL" value="https://picsum.photos/200">
+        <input id="cp-desc" placeholder="Description" value="A comfortable cotton t-shirt">
+        <input id="cp-stock" placeholder="Stock" value="100">
+      </div>
+      <div class="row">
+        <input id="cp-sizes" placeholder="Sizes (comma)" value="S,M,L,XL">
+        <input id="cp-colors" placeholder="Colors (comma)" value="Black,White">
+      </div>
+      <div style="display:flex;gap:6px;">
+        <button class="btn-success" onclick="createProduct()">Create</button>
+        <span style="flex:1"></span>
+        <input id="up-id" placeholder="Product ID to update" style="width:200px">
+        <button class="btn-warning" onclick="updateProduct()">Update</button>
+      </div>
+      <pre id="cp-res" class="mt-8"></pre>
+    </div>
+  </div>
+
+  <!-- ===== CART ===== -->
+  <section id="s-cart" class="mb-12 mt-12"><h2>🛒 Cart</h2></section>
+  <div class="grid">
+    <div class="card">
+      <h3>Add Item to Cart</h3>
+      <div class="row"><input id="cart-add-id" placeholder="Product ID"><input id="cart-add-qty" placeholder="Qty" value="1"></div>
+      <button class="btn-primary btn-sm" onclick="addToCart()">Add</button>
+      <pre id="cart-add-res" class="mt-8"></pre>
+    </div>
+    <div class="card">
+      <h3>Remove Item from Cart</h3>
+      <div class="row"><input id="cart-rm-id" placeholder="Product ID"><button class="btn-danger btn-sm" onclick="removeFromCart()">Remove</button></div>
+      <pre id="cart-rm-res" class="mt-8"></pre>
+    </div>
+  </div>
+
+  <!-- ===== ORDERS ===== -->
+  <section id="s-orders" class="mb-12 mt-12"><h2>📋 Orders</h2></section>
+  <div class="card mb-12">
+    <div class="flex-between">
+      <h3>Orders <span class="badge" id="order-count">0</span></h3>
+      <button class="btn-primary btn-sm" onclick="loadOrders()">🔄 Refresh</button>
+    </div>
+    <div class="table-wrap">
+      <table><thead><tr><th>ID</th><th>User ID</th><th>Total</th><th>Status</th><th>Date</th></tr></thead><tbody id="order-tbody"></tbody></table>
+    </div>
+    <div id="order-empty" style="font-size:13px;color:#888;padding:12px;text-align:center;">No orders yet.</div>
+  </div>
+  <div class="grid">
+    <div class="card">
+      <h3>Create Order</h3>
+      <div class="row"><input id="co-cart" placeholder="Cart ID"><button class="btn-success btn-sm" onclick="createOrder()">Create</button></div>
+      <pre id="co-res" class="mt-8"></pre>
+    </div>
+    <div class="card">
+      <h3>Refund / Cancel</h3>
+      <div class="row">
+        <input id="oa-id" placeholder="Order ID">
+        <select id="oa-action"><option value="refund">Refund</option><option value="cancel">Cancel</option></select>
+        <button class="btn-primary btn-sm" onclick="orderAction()">Submit</button>
+      </div>
+      <pre id="oa-res" class="mt-8"></pre>
+    </div>
+  </div>
+
+  <!-- ===== WISHLIST ===== -->
+  <section id="s-wishlist" class="mb-12 mt-12"><h2>⭐ Wishlist</h2></section>
+  <div class="grid">
+    <div class="card">
+      <h3>Add to Wishlist</h3>
+      <div class="row"><input id="wl-add" placeholder="Product ID"><button class="btn-primary btn-sm" onclick="addWishlist()">Add</button></div>
+      <pre id="wl-add-res" class="mt-8"></pre>
+    </div>
+    <div class="card">
+      <h3>Remove from Wishlist</h3>
+      <div class="row"><input id="wl-rm" placeholder="Product ID"><button class="btn-danger btn-sm" onclick="removeWishlist()">Remove</button></div>
+      <pre id="wl-rm-res" class="mt-8"></pre>
+    </div>
+  </div>
+
+  <!-- ===== ADMIN ===== -->
+  <section id="s-admin" class="mb-12 mt-12"><h2>🔧 Admin Panel</h2></section>
+  <div class="grid">
+    <div class="card">
+      <h3>Update Order Status</h3>
+      <div class="row">
+        <input id="uos-id" placeholder="Order ID">
+        <select id="uos-status"><option value="processing">Processing</option><option value="shipped">Shipped</option><option value="delivered">Delivered</option><option value="cancelled">Cancelled</option><option value="refunded">Refunded</option></select>
+        <button class="btn-primary btn-sm" onclick="updateOrderStatus()">Update</button>
+      </div>
+      <pre id="uos-res" class="mt-8"></pre>
+    </div>
+    <div class="card">
+      <h3>Get Order</h3>
+      <div class="row"><input id="go-id" placeholder="Order ID"><button class="btn-primary btn-sm" onclick="getOrder()">Get</button></div>
+      <pre id="go-res" class="mt-8"></pre>
+    </div>
+    <div class="card">
+      <h3>Orders by Status</h3>
+      <div class="row">
+        <select id="obs-action">
+          <option value="">All (latest 10)</option>
+          <option value="refundRequested">Refund Requested</option>
+          <option value="cancelRequested">Cancel Requested</option>
+          <option value="delivered">Delivered</option>
+          <option value="shipped">Shipped</option>
+          <option value="processing">Processing</option>
+          <option value="cancelled">Cancelled</option>
+          <option value="refunded">Refunded</option>
+        </select>
+        <button class="btn-primary btn-sm" onclick="ordersByStatus()">List</button>
+      </div>
+      <pre id="obs-res" class="mt-8"></pre>
+    </div>
+  </div>
+
+  <!-- ===== SALES ===== -->
+  <section id="s-sales" class="mb-12 mt-12"><h2>📈 Sales Analytics</h2></section>
+  <div class="grid-4 mb-12">
+    <div class="stat-card"><div class="num" id="stat-total-orders">—</div><div class="label">Total Orders (30d)</div></div>
+    <div class="stat-card"><div class="num" id="stat-total-revenue">—</div><div class="label">Revenue (30d)</div></div>
+  </div>
+  <div class="grid">
+    <div class="card">
+      <h3>Total Orders</h3>
+      <div class="row"><input id="to-days" value="30"><button class="btn-primary btn-sm" onclick="totalOrders()">Get</button></div>
+      <pre id="to-res" class="mt-8"></pre>
+    </div>
+    <div class="card">
+      <h3>Sales Revenue</h3>
+      <div class="row"><input id="sr-days" value="30"><button class="btn-primary btn-sm" onclick="salesRevenue()">Get</button></div>
+      <pre id="sr-res" class="mt-8"></pre>
+    </div>
+    <div class="card">
+      <h3>Top Selling Products</h3>
+      <div class="row"><input id="tp-days" value="30"><button class="btn-primary btn-sm" onclick="topSelling()">Get</button></div>
+      <pre id="tp-res" class="mt-8"></pre>
+    </div>
+  </div>
+
+  <!-- ===== BULL BOARD ===== -->
+  <section id="s-bull" class="mb-12 mt-12"><h2>⏱ Bull Board — Queue Monitor</h2></section>
+  <div class="grid">
+    <div class="card" style="grid-column: span 2;">
+      <h3>Job Queue Dashboard</h3>
+      <p style="font-size:13px;color:#666;margin-bottom:10px;">Bull Board provides a full UI for monitoring and managing the cart expiration queue. You can view job statuses, retry failed jobs, remove jobs, and inspect job data.</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button class="btn-primary" onclick="window.open('/admin/queues','_blank')">🚀 Open Bull Board</button>
+        <button class="btn-outline btn-sm" onclick="bullQueueInfo()">📋 Fetch Queue Info</button>
+      </div>
+      <div id="bull-info" class="mt-8" style="font-size:13px;color:#666;display:none;">
+        Bull Board is available at <code>/admin/queues</code>. Open it in a new tab for the full interface.
+      </div>
+      <pre id="bull-res" class="mt-8"></pre>
+    </div>
+  </div>
+</div>
+<div id="toast" class="toast"></div>
+
+<script>
+const BASE = '';
+
+function $(id) { return document.getElementById(id); }
+function showToast(msg, type) {
+  const t = $('toast');
+  t.textContent = msg; t.className = 'toast ' + type + ' show';
+  setTimeout(() => t.className = 'toast', 3000);
+}
+
+async function api(method, url, body) {
+  const opts = { method, headers: {} };
+  if (body) { opts.headers['Content-Type'] = 'application/json'; opts.body = JSON.stringify(body); }
+  const res = await fetch(BASE + url, opts);
+  const text = await res.text();
+  let data;
+  try { data = JSON.parse(text); } catch(e) { data = text; }
+  if (!res.ok) showToast(res.status + ' ' + (data?.errors?.[0]?.message || data?.message || res.statusText), 'error');
+  else showToast('Success', 'success');
+  return { status: res.status, data };
+}
+
+function show(el, data) {
+  const target = $(el);
+  if (target) target.textContent = typeof data === 'string' ? data : JSON.stringify(data, null, 2);
+}
+
+function statusBadge(status) {
+  const colors = { pending: 'badge-yellow', processing: 'badge-blue', shipped: 'badge-blue', delivered: 'badge-green', cancelled: 'badge-red', refunded: 'badge-red' };
+  return `<span class="badge-status ${colors[status] || 'badge-gray'}">${status}</span>`;
+}
+
+function copyId(id) {
+  navigator.clipboard?.writeText(id).then(() => showToast('Copied: ' + id, 'success'));
+}
+
+// ===== AUTH =====
+async function loadUsers() {
+  const r = await api('GET', '/api/admin/users');
+  const users = Array.isArray(r.data) ? r.data : [];
+  const tbody = $('user-tbody');
+  tbody.innerHTML = users.map(u => {
+    const id = u._id || '';
+    return '<tr><td style="font-family:monospace;font-size:11px;">' + id.slice(0,8) + '… <button class="copy-btn" onclick="copyId(\''+id+'\')">📋</button></td><td>' + (u.email||'') + '</td><td>' + (u.username||'') + '</td><td>' + (u.isAdmin ? '<span class="badge-status badge-green">✓</span>' : '<span class="badge-status badge-gray">—</span>') + '</td><td>' + (u.cart?.length||0) + '</td><td>' + (u.orders?.length||0) + '</td><td>' + (u.createdAt ? new Date(u.createdAt).toLocaleDateString() : '') + '</td></tr>';
+  }).join('');
+  $('user-count').textContent = users.length;
+  $('user-empty').style.display = users.length ? 'none' : 'block';
+  return users;
+}
+
+async function signup() {
+  const r = await api('POST', '/api/users/signup', {
+    email: $('su-email').value, username: $('su-name').value, password: $('su-pass').value,
+  });
+  show('su-res', r.data);
+}
+async function login() {
+  const r = await api('POST', '/api/users/login', {
+    email: $('li-email').value, password: $('li-pass').value,
+  });
+  show('li-res', r.data);
+  if (r.status === 200) { currentUser(); loadStats(); }
+}
+async function currentUser() {
+  const r = await api('GET', '/api/users/currentuser');
+  show('cu-res', r.data);
+  if (r.data?.currentUser) {
+    const u = r.data.currentUser;
+    $('status-text').textContent = 'Logged in as ' + u.email + (u.isAdmin ? ' (Admin)' : '');
+    $('session-info').innerHTML = '<div style="font-size:13px;"><strong>ID:</strong> ' + u.id + ' <button class="copy-btn" onclick="copyId(\''+u.id+'\')">📋</button><br><strong>Email:</strong> ' + u.email + '<br><strong>Admin:</strong> ' + u.isAdmin + '</div>';
+    $('stat-user').textContent = '✓';
+  } else {
+    $('status-text').textContent = 'Not logged in';
+    $('session-info').textContent = 'Not authenticated. Login first.';
+    $('stat-user').textContent = '✗';
+  }
+}
+async function signout() {
+  const r = await api('POST', '/api/users/signout');
+  show('so-res', r.data);
+  $('status-text').textContent = 'Not logged in';
+  $('session-info').textContent = 'Signed out.';
+  $('stat-user').textContent = '✗';
+}
+
+// ===== PRODUCTS =====
+async function loadProducts() {
+  const r = await api('GET', '/api/products');
+  const prods = Array.isArray(r.data) ? r.data : [];
+  const tbody = $('prod-tbody');
+  tbody.innerHTML = prods.map(p => {
+    const id = p._id || '';
+    return '<tr><td style="font-family:monospace;font-size:11px;">' + id.slice(0,8) + '… <button class="copy-btn" onclick="copyId(\''+id+'\')">📋</button></td><td>' + (p.title||'') + '</td><td>$' + (p.price||'') + '</td><td>' + (p.inStock??p.avaliableQuantity??'—') + '</td><td>' + (p.category||'') + '</td><td><button class="btn-primary btn-sm" onclick="$(\'gp-id\').value=\''+id+'\';getProduct()">View</button></td></tr>';
+  }).join('');
+  $('prod-count').textContent = prods.length;
+  $('prod-empty').style.display = prods.length ? 'none' : 'block';
+  $('stat-products').textContent = prods.length;
+  return prods;
+}
+
+async function homepage() {
+  const r = await api('GET', '/');
+  show('hp-res', r.data);
+  loadProducts();
+}
+async function filterProducts() {
+  const p = new URLSearchParams();
+  ['cat','size','gen','price','op'].forEach(k => {
+    const v = $('fp-' + k).value;
+    if (v) p.set(k === 'cat' ? 'category' : k === 'gen' ? 'gender' : k === 'op' ? 'priceOperator' : k, v);
+  });
+  const q = p.toString();
+  const r = await api('GET', '/api/products' + (q ? '?' + q : ''));
+  show('fp-res', r.data);
+}
+async function getProduct() {
+  const id = $('gp-id').value;
+  if (!id) return showToast('Enter product ID', 'error');
+  const r = await api('GET', '/api/product/' + id);
+  show('gp-res', r.data);
+}
+async function createProduct() {
+  const sizes = $('cp-sizes').value.split(',').map(s => s.trim()).filter(Boolean);
+  const color = $('cp-colors').value.split(',').map(s => s.trim()).filter(Boolean);
+  const r = await api('POST', '/api/admin/products/create', {
+    title: $('cp-title').value, price: parseFloat($('cp-price').value), category: $('cp-cat').value,
+    img: $('cp-img').value, description: $('cp-desc').value,
+    avaliableQuantity: parseInt($('cp-stock').value) || 100, inStock: parseInt($('cp-stock').value) || 100,
+    sizes, color, gender: 'unisex',
+    flashSale: { active: false, discount: 0, startDate: null, endDate: null },
+  });
+  show('cp-res', r.data);
+  if (r.status === 201) loadProducts();
+}
+async function updateProduct() {
+  const id = $('up-id').value;
+  if (!id) return showToast('Enter product ID', 'error');
+  const body = {};
+  const title = $('cp-title').value, price = $('cp-price').value;
+  if (title) body.title = title;
+  if (price) body.price = parseFloat(price);
+  const r = await api('PUT', '/api/products/update/' + id, body);
+  show('cp-res', r.data);
+  loadProducts();
+}
+
+// ===== CART =====
+async function addToCart() {
+  const id = $('cart-add-id').value;
+  const qty = parseInt($('cart-add-qty').value) || 1;
+  if (!id) return showToast('Enter product ID', 'error');
+  const r = await api('POST', '/api/cart/add-item', { productId: id, quantity: qty });
+  show('cart-add-res', r.data);
+}
+async function removeFromCart() {
+  const id = $('cart-rm-id').value;
+  if (!id) return showToast('Enter product ID', 'error');
+  const r = await api('DELETE', '/api/cart/remove-item', { productId: id });
+  show('cart-rm-res', r.data);
+}
+
+// ===== ORDERS =====
+async function loadOrders() {
+  const r = await api('GET', '/api/admin/orders');
+  const orders = Array.isArray(r.data) ? r.data : [];
+  const tbody = $('order-tbody');
+  tbody.innerHTML = orders.map(o => {
+    const id = o._id || '';
+    return '<tr><td style="font-family:monospace;font-size:11px;">' + id.slice(0,8) + '… <button class="copy-btn" onclick="copyId(\''+id+'\')">📋</button></td><td style="font-family:monospace;font-size:11px;">' + (o.userId||'').slice(0,8) + '…</td><td>$' + (o.totalPrice||'0') + '</td><td>' + statusBadge(o.status) + '</td><td>' + (o.createdAt ? new Date(o.createdAt).toLocaleDateString() : '') + '</td></tr>';
+  }).join('');
+  $('order-count').textContent = orders.length;
+  $('order-empty').style.display = orders.length ? 'none' : 'block';
+  $('stat-orders').textContent = orders.length;
+  return orders;
+}
+
+async function createOrder() {
+  const cartId = $('co-cart').value;
+  if (!cartId) return showToast('Enter cart ID', 'error');
+  const r = await api('POST', '/api/order/create-order', { cartId });
+  show('co-res', r.data);
+  if (r.status === 201) loadOrders();
+}
+async function orderAction() {
+  const oid = $('oa-id').value, act = $('oa-action').value;
+  if (!oid) return showToast('Enter order ID', 'error');
+  const r = await api('POST', '/api/orders?orderId=' + oid + '&action=' + act);
+  show('oa-res', r.data);
+}
+
+// ===== WISHLIST =====
+async function addWishlist() {
+  const id = $('wl-add').value;
+  if (!id) return showToast('Enter product ID', 'error');
+  const r = await api('POST', '/api/wishlist/add', { productId: id });
+  show('wl-add-res', r.data);
+}
+async function removeWishlist() {
+  const id = $('wl-rm').value;
+  if (!id) return showToast('Enter product ID', 'error');
+  const r = await api('POST', '/api/wishlist/remove', { productId: id });
+  show('wl-rm-res', r.data);
+}
+
+// ===== ADMIN =====
+async function updateOrderStatus() {
+  const oid = $('uos-id').value, st = $('uos-status').value;
+  if (!oid) return showToast('Enter order ID', 'error');
+  const r = await api('PUT', '/api/admin/orders/status', { orderId: oid, status: st });
+  show('uos-res', r.data);
+  if (r.status === 200) loadOrders();
+}
+async function getOrder() {
+  const id = $('go-id').value;
+  if (!id) return showToast('Enter order ID', 'error');
+  const r = await api('GET', '/api/admin/orders/' + id);
+  show('go-res', r.data);
+}
+async function ordersByStatus() {
+  const act = $('obs-action').value;
+  const q = act ? '?action=' + act : '';
+  const r = await api('GET', '/api/admin/orders' + q);
+  show('obs-res', r.data);
+}
+
+// ===== SALES =====
+async function totalOrders() {
+  const d = $('to-days').value || 30;
+  const r = await api('GET', '/api/admin/orders/total-orders/' + d);
+  show('to-res', r.data);
+  if (r.data?.totalOrders !== undefined) $('stat-total-orders').textContent = r.data.totalOrders;
+}
+async function salesRevenue() {
+  const d = $('sr-days').value || 30;
+  const r = await api('GET', '/api/admin/orders/sales-revenue/' + d);
+  show('sr-res', r.data);
+  if (r.data?.totalRevenue !== undefined) $('stat-total-revenue').textContent = '$' + r.data.totalRevenue;
+}
+async function topSelling() {
+  const d = $('tp-days').value || 30;
+  const r = await api('GET', '/api/admin/orders/top-selling-products/' + d);
+  show('tp-res', r.data);
+}
+
+// ===== BULL =====
+async function bullQueueInfo() {
+  try {
+    const res = await fetch(BASE + '/admin/queues');
+    $('bull-res').textContent = 'Bull Board UI loaded (' + res.status + '). Open in browser tab for full dashboard.';
+  } catch(e) {
+    $('bull-res').textContent = 'Bull Board at /admin/queues. Open in new tab.';
+  }
+  $('bull-info').style.display = 'block';
+}
+
+// ===== STATS =====
+async function loadStats() {
+  const p = await loadProducts();
+  const o = await loadOrders();
+  const u = await loadUsers();
+  totalOrders(); salesRevenue(); topSelling();
+  $('stat-products').textContent = p.length;
+  $('stat-orders').textContent = o.length;
+  await currentUser();
+}
+
+// ===== REFRESH ALL =====
+async function refreshAll() {
+  showToast('Refreshing all data...', 'success');
+  await loadStats();
+}
+
+// ===== AUTO-LOAD ON PAGE LOAD =====
+window.addEventListener('DOMContentLoaded', () => {
+  loadStats();
+});
+</script>
+</body>
+</html>
