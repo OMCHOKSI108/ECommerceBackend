@@ -2,9 +2,15 @@
 
 Welcome to our E-commerce platform! This repository contains the source code for a feature-rich e-commerce application built using Node.js, Express.js, MongoDB, and Redis. This README provides an overview of the project, installation instructions, and information about the available API routes.
 
+
+# GitHub Master Practical Project
+
+
+
 ## Table of Contents
 
 - [E-commerce Platform](#e-commerce-platform)
+- [GitHub Master Practical Project](#github-master-practical-project)
   - [Table of Contents](#table-of-contents)
   - [Getting Started](#getting-started)
     - [Prerequisites](#prerequisites)
